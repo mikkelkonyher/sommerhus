@@ -3,6 +3,7 @@ import { DayPicker } from 'react-day-picker';
 import { addMonths, isSameDay, isBefore, startOfToday, startOfDay, startOfYear, eachMonthOfInterval, format, isWithinInterval, eachDayOfInterval, endOfMonth, startOfMonth, getYear } from 'date-fns';
 import { da } from 'date-fns/locale';
 import { Calendar, Grid } from 'lucide-react';
+import { BookingInfoModal } from './BookingInfoModal';
 import 'react-day-picker/dist/style.css';
 
 export function BookingCalendar({ bookings, onSelectDate, selectedRange }) {
@@ -10,18 +11,65 @@ export function BookingCalendar({ bookings, onSelectDate, selectedRange }) {
   const [month, setMonth] = useState(today);
   const [viewMode, setViewMode] = useState('month'); // 'month' or 'year'
   const [year, setYear] = useState(getYear(today));
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Convert bookings to disabled days
-  // Normalize dates to start of day to avoid timezone issues
-  const disabledDays = bookings
-    .filter(b => b.status === 'confirmed')
-    .map(b => ({
-      from: startOfDay(new Date(b.start_date)),
-      to: startOfDay(new Date(b.end_date))
-    }));
-
-  // Add past dates to disabled days
-  disabledDays.push({ from: new Date(0), to: new Date(today.getTime() - 86400000) });
+  // Only disable past dates (not booked dates, so they remain clickable)
+  const disabledDays = [{ from: new Date(0), to: new Date(today.getTime() - 86400000) }];
+  
+  // Helper function to check if a date is booked
+  const isDateBooked = (date) => {
+    const normalizedDate = startOfDay(date);
+    return bookings.some(b => {
+      if (b.status !== 'confirmed') return false;
+      const start = startOfDay(new Date(b.start_date));
+      const end = startOfDay(new Date(b.end_date));
+      return normalizedDate >= start && normalizedDate <= end;
+    });
+  };
+  
+  // Helper function to find booking for a date
+  const findBookingForDate = (date) => {
+    const normalizedDay = startOfDay(date);
+    return bookings.find(b => {
+      if (b.status !== 'confirmed') return false;
+      const start = startOfDay(new Date(b.start_date));
+      const end = startOfDay(new Date(b.end_date));
+      return normalizedDay >= start && normalizedDay <= end;
+    });
+  };
+  
+  // Custom onSelect handler that prevents selecting booked dates
+  const handleDateSelect = (range) => {
+    if (!range) {
+      onSelectDate(range);
+      return;
+    }
+    
+    // Check if the selected date(s) are booked
+    if (range.from && isDateBooked(range.from)) {
+      // If clicking on a booked date, show booking info instead
+      const booking = findBookingForDate(range.from);
+      if (booking) {
+        setSelectedBooking(booking);
+        setIsModalOpen(true);
+      }
+      return; // Don't allow selection of booked dates
+    }
+    if (range.to && isDateBooked(range.to)) {
+      return; // Don't allow selection of booked dates
+    }
+    if (range.from && range.to) {
+      // Check if any date in the range is booked
+      const days = eachDayOfInterval({ start: range.from, end: range.to });
+      const hasBookedDate = days.some(day => isDateBooked(day));
+      if (hasBookedDate) {
+        return; // Don't allow selection if range includes booked dates
+      }
+    }
+    
+    onSelectDate(range);
+  };
 
   const footer = selectedRange?.from ? (
     <p className="mt-4 text-center text-fg-default text-xs sm:text-sm px-2">
@@ -174,11 +222,12 @@ export function BookingCalendar({ bookings, onSelectDate, selectedRange }) {
                               return day >= start && day <= end;
                             });
                             if (booking) {
-                              alert(`Booket af: ${booking.guest_name}`);
+                              setSelectedBooking(booking);
+                              setIsModalOpen(true);
                             }
                           }
                         }}
-                        disabled={isPast || isBooked}
+                        disabled={isPast}
                         className={`
                           aspect-square w-full text-xs font-medium rounded transition-all
                           flex items-center justify-center
@@ -210,6 +259,14 @@ export function BookingCalendar({ bookings, onSelectDate, selectedRange }) {
 
   return (
     <div className="w-full">
+      <BookingInfoModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedBooking(null);
+        }}
+        booking={selectedBooking}
+      />
       {/* View toggle */}
       <div className="flex items-center justify-center mb-4 sm:mb-6 lg:mb-8">
         <div className="inline-flex rounded-lg border border-border-default bg-canvas-subtle p-1 shadow-sm">
@@ -271,7 +328,7 @@ export function BookingCalendar({ bookings, onSelectDate, selectedRange }) {
           <DayPicker
             mode="range"
             selected={selectedRange}
-            onSelect={onSelectDate}
+            onSelect={handleDateSelect}
             locale={da}
             disabled={disabledDays}
             min={1}
@@ -284,18 +341,13 @@ export function BookingCalendar({ bookings, onSelectDate, selectedRange }) {
             className="font-sans"
             modifiers={modifiers}
             modifiersStyles={modifiersStyles}
-            onDayClick={(day, modifiers) => {
-               // Check if day is booked and alert who booked it
-               // Normalize dates for comparison
-               const normalizedDay = startOfDay(day);
-               const booking = bookings.find(b => {
-                 if (b.status !== 'confirmed') return false;
-                 const start = startOfDay(new Date(b.start_date));
-                 const end = startOfDay(new Date(b.end_date));
-                 return normalizedDay >= start && normalizedDay <= end;
-               });
+            onDayClick={(day) => {
+               // Check if day is booked and show booking info
+               // This works as a backup to onSelect
+               const booking = findBookingForDate(day);
                if (booking) {
-                 alert(`Booket af: ${booking.guest_name}`);
+                 setSelectedBooking(booking);
+                 setIsModalOpen(true);
                }
             }}
           />
