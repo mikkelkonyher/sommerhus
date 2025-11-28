@@ -31,74 +31,68 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-canvas-subtle flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <Trees className="mx-auto h-12 w-12 text-fg-default" />
-        <h2 className="mt-6 text-center text-2xl font-bold tracking-tight text-fg-default">
-          Log ind på Skogkrogen
-        </h2>
-      </div>
-
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-canvas-default py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-border-default">
-          <form className="space-y-6" onSubmit={handleLogin}>
+    <div className="min-h-screen bg-canvas-default flex items-center justify-center px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-2xl sm:text-3xl font-bold text-fg-default">
+            Skogkrogen
+          </h2>
+          <p className="mt-2 text-center text-sm text-fg-muted">
+            Log ind for at booke sommerhuset
+          </p>
+        </div>
+        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+          <div className="rounded-md shadow-sm space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-fg-default">
-                Email adresse
+              <label htmlFor="email" className="block text-sm font-medium text-fg-default mb-1">
+                Email
               </label>
-              <div className="mt-1">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full appearance-none rounded-md border border-border-default px-3 py-2 placeholder-fg-subtle shadow-sm focus:border-accent-fg focus:outline-none focus:ring-1 focus:ring-accent-fg sm:text-sm"
-                />
-              </div>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="appearance-none relative block w-full px-3 py-2 border border-border-default placeholder-fg-muted text-fg-default rounded-md focus:outline-none focus:ring-accent-fg focus:border-accent-fg focus:z-10 sm:text-sm"
+                placeholder="din@email.dk"
+              />
             </div>
-
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-fg-default">
+              <label htmlFor="password" className="block text-sm font-medium text-fg-default mb-1">
                 Adgangskode
               </label>
-              <div className="mt-1">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full appearance-none rounded-md border border-border-default px-3 py-2 placeholder-fg-subtle shadow-sm focus:border-accent-fg focus:outline-none focus:ring-1 focus:ring-accent-fg sm:text-sm"
-                />
-              </div>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="appearance-none relative block w-full px-3 py-2 border border-border-default placeholder-fg-muted text-fg-default rounded-md focus:outline-none focus:ring-accent-fg focus:border-accent-fg focus:z-10 sm:text-sm"
+                placeholder="••••••••"
+              />
             </div>
+          </div>
 
-            {error && (
-              <div className="rounded-md bg-danger-fg/10 p-4">
-                <div className="flex">
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-danger-fg">{error}</h3>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="flex w-full justify-center rounded-md border border-transparent bg-btn-primary-bg py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-btn-primary-hover-bg focus:outline-none focus:ring-2 focus:ring-accent-fg focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? 'Logger ind...' : 'Log ind'}
-              </button>
+          {error && (
+            <div className="rounded-md bg-danger-fg/10 border border-danger-fg/20 p-3 sm:p-4">
+              <p className="text-sm text-danger-fg">{error}</p>
             </div>
-          </form>
-        </div>
+          )}
+
+          <div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-btn-primary-bg hover:bg-btn-primary-hover-bg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-fg disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Logger ind...' : 'Log ind'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

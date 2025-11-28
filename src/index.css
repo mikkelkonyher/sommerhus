@@ -48,10 +48,68 @@
   .btn-primary {
     @apply text-btn-primary-text bg-btn-primary-bg border-btn-primary-border hover:bg-btn-primary-hover-bg;
   }
+  /* Button styles */
+  button {
+    @apply transition-colors;
+    /* Ensure buttons are easy to tap on mobile */
+    min-height: 44px;
+  }
+
+  /* Card styles */
   .card {
-    @apply bg-canvas-default border border-border-default rounded-md;
+    @apply bg-canvas-default border border-border-default rounded-lg shadow-sm;
   }
   .card-header {
     @apply bg-canvas-subtle border-b border-border-default px-4 py-3 rounded-t-md font-semibold text-sm;
   }
+
+  /* Mobile-friendly touch targets */
+  @media (max-width: 768px) {
+    /* Increase touch target size on mobile */
+    button, a {
+      min-height: 44px;
+    }
+    
+    input[type="checkbox"] {
+      min-height: 20px;
+      min-width: 20px;
+    }
+    
+    /* Better spacing on mobile */
+    .space-y-4 > * + * {
+      margin-top: 1rem;
+    }
+    
+    /* Prevent text from being too small */
+    body {
+      font-size: 16px; /* Prevents iOS zoom on input focus */
+    }
+    
+    /* Reduce padding on small screens */
+    .p-6 {
+      padding: 1rem;
+    }
+    
+    .px-6 {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+  }
+
+  /* Improve calendar on mobile */
+  @media (max-width: 640px) {
+    .rdp {
+      --rdp-cell-size: 32px !important;
+      font-size: 14px;
+    }
+    
+    .rdp-caption {
+      font-size: 14px;
+    }
+    
+    .rdp-months {
+      width: 100%;
+    }
+  }
+
 }

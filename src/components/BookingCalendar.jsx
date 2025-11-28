@@ -20,13 +20,13 @@ export function BookingCalendar({ bookings, onSelectDate, selectedRange }) {
   disabledDays.push({ from: new Date(0), to: new Date(today.getTime() - 86400000) });
 
   const footer = selectedRange?.from ? (
-    <p className="mt-4 text-center text-fg-default text-sm">
+    <p className="mt-4 text-center text-fg-default text-xs sm:text-sm px-2">
       {selectedRange.to
-        ? `Valgt: ${selectedRange.from.toLocaleDateString('da-DK')} - ${selectedRange.to.toLocaleDateString('da-DK')}`
-        : `Start: ${selectedRange.from.toLocaleDateString('da-DK')}`}
+        ? `${selectedRange.from.toLocaleDateString('da-DK', { day: 'numeric', month: 'short' })} - ${selectedRange.to.toLocaleDateString('da-DK', { day: 'numeric', month: 'short', year: 'numeric' })}`
+        : `Fra: ${selectedRange.from.toLocaleDateString('da-DK', { day: 'numeric', month: 'short' })}`}
     </p>
   ) : (
-    <p className="mt-4 text-center text-fg-muted text-sm">Vælg en periode for at booke.</p>
+    <p className="mt-4 text-center text-fg-muted text-xs sm:text-sm px-2">Vælg periode</p>
   );
 
   // Custom modifiers to show who booked
@@ -49,7 +49,7 @@ export function BookingCalendar({ bookings, onSelectDate, selectedRange }) {
   });
 
   return (
-    <div className="flex justify-center">
+    <div className="w-full flex justify-center">
       <style>{`
         .rdp {
           --rdp-cell-size: 40px;
@@ -57,6 +57,13 @@ export function BookingCalendar({ bookings, onSelectDate, selectedRange }) {
           --rdp-background-color: #ddf4ff;
           margin: 0;
         }
+        
+        @media (max-width: 640px) {
+          .rdp {
+            --rdp-cell-size: 32px;
+          }
+        }
+        
         .rdp-day_selected:not([disabled]), .rdp-day_selected:focus:not([disabled]), .rdp-day_selected:active:not([disabled]), .rdp-day_selected:hover:not([disabled]) {
           background-color: var(--rdp-accent-color);
           color: white;

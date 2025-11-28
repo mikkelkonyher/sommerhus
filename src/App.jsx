@@ -56,72 +56,86 @@ function Dashboard() {
 
   return (
     <div className="min-h-screen bg-canvas-default">
-      <header className="bg-canvas-subtle border-b border-border-default">
-        <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Trees className="h-8 w-8 text-fg-default" />
-            <h1 className="text-xl font-semibold text-fg-default">
-              Skogkrogen
-            </h1>
-          </div>
-          <div className="flex items-center space-x-4">
-            <span className="text-sm text-fg-muted">Logget ind som {user.email}</span>
-            <button 
-              onClick={handleLogout}
-              className="btn text-fg-default hover:text-danger-fg"
-              title="Log ud"
-            >
-              <LogOut className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-      </header>
+          {/* Header */}
+          <header className="border-b border-border-default bg-canvas-default sticky top-0 z-10">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2 sm:space-x-3">
+                  <Trees className="h-6 w-6 sm:h-8 sm:w-8 text-fg-default" />
+                  <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-fg-default">Skogkrogen</h1>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm text-fg-muted hover:text-fg-default px-2 py-1"
+                  title="Log ud"
+                >
+                  <span className="hidden sm:inline">Log ud</span>
+                  <LogOut className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </header>
 
-      <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Left Column: Calendar (8 cols) */}
-          <div className="lg:col-span-8 space-y-6">
-            <div className="card">
-              <div className="card-header">
-                Kalender
-              </div>
-              <div className="p-4">
-                <BookingCalendar 
-                  bookings={bookings} 
-                  onSelectDate={setSelectedRange} 
-                  selectedRange={selectedRange} 
-                />
-              </div>
-            </div>
-            
-            <div className="card">
-              <div className="card-header">
-                Bookinger
-              </div>
-              <div className="p-0">
-                <BookingList bookings={bookings} onUpdate={fetchBookings} userEmail={user.email} />
-              </div>
-            </div>
-          </div>
+          {/* Main Content */}
+          <main className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-8">
+              {/* Left Column: Calendar + Booking List (8 cols on desktop) */}
+              <div className="lg:col-span-8 space-y-4 sm:space-y-6">
+                {/* Calendar */}
+                <div className="bg-canvas-default border border-border-default rounded-lg shadow-sm overflow-hidden">
+                  <div className="border-b border-border-muted px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
+                    <h2 className="text-base sm:text-lg font-semibold text-fg-default">Kalender</h2>
+                  </div>
+                  <div className="p-3 sm:p-4 lg:p-6 flex justify-center">
+                    <BookingCalendar
+                      bookings={bookings}
+                      onSelectDate={setSelectedRange}
+                      selectedRange={selectedRange}
+                    />
+                  </div>
+                </div>
 
-          {/* Right Column: Booking Form (4 cols) */}
-          <div className="lg:col-span-4 space-y-6">
-            <div className="card">
-              <div className="card-header">
-                Ny Booking
+                {/* Booking Form - Show on mobile after calendar */}
+                <div className="lg:hidden bg-canvas-default border border-border-default rounded-lg shadow-sm">
+                  <div className="border-b border-border-muted px-3 sm:px-4 py-3 sm:py-4">
+                    <h2 className="text-base sm:text-lg font-semibold text-fg-default">Ny booking</h2>
+                  </div>
+                  <div className="p-3 sm:p-4">
+                    <BookingForm
+                      selectedRange={selectedRange}
+                      onSuccess={handleBookingSuccess}
+                      userEmail={user.email}
+                    />
+                  </div>
+                </div>
+
+                {/* Booking List */}
+                <div className="bg-canvas-default border border-border-default rounded-lg shadow-sm overflow-hidden">
+                  <div className="border-b border-border-muted px-3 sm:px-4 lg:px-6 py-3 sm:py-4 bg-canvas-subtle">
+                    <h2 className="text-base sm:text-lg font-semibold text-fg-default">Bookinger</h2>
+                  </div>
+                  <BookingList bookings={bookings} onUpdate={fetchBookings} userEmail={user.email} />
+                </div>
               </div>
-              <div className="p-4">
-                <BookingForm 
-                  selectedRange={selectedRange} 
-                  onSuccess={handleBookingSuccess}
-                  userEmail={user.email}
-                />
+
+              {/* Right Column: Booking Form (4 cols on desktop, hidden on mobile) */}
+              <div className="hidden lg:block lg:col-span-4">
+                <div className="bg-canvas-default border border-border-default rounded-lg shadow-sm sticky top-20">
+                  <div className="border-b border-border-muted px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
+                    <h2 className="text-base sm:text-lg font-semibold text-fg-default">Ny booking</h2>
+                  </div>
+                  <div className="p-3 sm:p-4 lg:p-6">
+                    <BookingForm
+                      selectedRange={selectedRange}
+                      onSuccess={handleBookingSuccess}
+                      userEmail={user.email}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          </main>
         </div>
-      </main>
-    </div>
   );
 }
 
