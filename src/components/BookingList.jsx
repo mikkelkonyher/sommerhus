@@ -13,6 +13,7 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
   const [editStartDate, setEditStartDate] = useState('');
   const [editEndDate, setEditEndDate] = useState('');
   const [editGuestCount, setEditGuestCount] = useState(1);
+  const [editPurpose, setEditPurpose] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, bookingId: null });
   const [checklistBooking, setChecklistBooking] = useState(null);
   const [viewBooking, setViewBooking] = useState(null);
@@ -95,6 +96,7 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
     setEditStartDate(booking.start_date);
     setEditEndDate(booking.end_date);
     setEditGuestCount(booking.guest_count);
+    setEditPurpose(booking.purpose || '');
   };
 
   const handleSaveEdit = async (id) => {
@@ -130,7 +132,8 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
           guest_name: editName,
           start_date: editStartDate,
           end_date: editEndDate,
-          guest_count: editGuestCount
+          guest_count: editGuestCount,
+          purpose: editPurpose || null
         })
         .eq('id', id);
 
@@ -297,6 +300,16 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
                           ))}
                         </select>
                       </div>
+                      <div>
+                        <label className="text-xs text-fg-muted">Formål (valgfrit)</label>
+                        <textarea
+                          value={editPurpose}
+                          onChange={(e) => setEditPurpose(e.target.value)}
+                          placeholder="f.eks. reparation af vandskade"
+                          rows={2}
+                          className="w-full border border-border-default rounded px-2 py-1 text-sm resize-none"
+                        />
+                      </div>
                     </div>
                   ) : (
                     <>
@@ -320,6 +333,11 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
                           </span>
                         )}
                       </div>
+                      {booking.purpose && (
+                        <div className="text-xs text-fg-muted mt-1">
+                          <span className="font-medium">Formål:</span> {booking.purpose}
+                        </div>
+                      )}
                     </>
                   )}
                   
@@ -429,7 +447,7 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
                           />
                         </div>
                       </div>
-                      <div className="w-1/3">
+                        <div className="w-1/3">
                         <label className="text-xs text-fg-muted block mb-1">Antal personer</label>
                         <select
                           value={editGuestCount}
@@ -440,6 +458,16 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
                             <option key={num} value={num}>{num}</option>
                           ))}
                         </select>
+                      </div>
+                      <div className="w-full">
+                        <label className="text-xs text-fg-muted block mb-1">Formål (valgfrit)</label>
+                        <textarea
+                          value={editPurpose}
+                          onChange={(e) => setEditPurpose(e.target.value)}
+                          placeholder="f.eks. reparation af vandskade"
+                          rows={2}
+                          className="w-full border border-border-default rounded px-2 py-1 text-sm resize-none"
+                        />
                       </div>
                     </div>
                   ) : (
@@ -460,6 +488,11 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
                           #{booking.id}
                         </span>
                       </div>
+                      {booking.purpose && (
+                        <div className="text-xs text-fg-muted mt-1">
+                          <span className="font-medium">Formål:</span> {booking.purpose}
+                        </div>
+                      )}
                     </>
                   )}
                   <div className="mt-1 flex items-center justify-between text-xs text-fg-muted">

@@ -7,6 +7,7 @@ export function BookingForm({ selectedRange, onSuccess, userEmail }) {
   const [name, setName] = useState('');
   const [guestCount, setGuestCount] = useState(1);
   const [allowOtherFamily, setAllowOtherFamily] = useState(false);
+  const [purpose, setPurpose] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [lastBooking, setLastBooking] = useState(null);
@@ -40,6 +41,7 @@ export function BookingForm({ selectedRange, onSuccess, userEmail }) {
             guest_email: userEmail,
             guest_count: guestCount,
             allow_other_family: allowOtherFamily,
+            purpose: purpose || null,
             status: 'confirmed'
           }
         ]);
@@ -56,6 +58,7 @@ export function BookingForm({ selectedRange, onSuccess, userEmail }) {
       setName('');
       setGuestCount(1);
       setAllowOtherFamily(false);
+      setPurpose('');
       // Don't call onSuccess immediately, let user see the success screen
     } catch (err) {
       console.error('Error booking:', err);
@@ -166,6 +169,18 @@ export function BookingForm({ selectedRange, onSuccess, userEmail }) {
           </label>
           <p className="text-fg-muted text-xs">Andre kan også bruge huset i denne periode</p>
         </div>
+      </div>
+
+      <div>
+        <label htmlFor="purpose" className="block text-sm font-medium text-fg-default">Formål (valgfrit)</label>
+        <textarea
+          id="purpose"
+          value={purpose}
+          onChange={(e) => setPurpose(e.target.value)}
+          placeholder="f.eks. reparation af vandskade"
+          rows={3}
+          className="mt-1 block w-full rounded-md border border-border-default px-3 py-2 shadow-sm focus:border-accent-fg focus:ring-1 focus:ring-accent-fg sm:text-sm bg-white resize-none"
+        />
       </div>
 
       {error && (

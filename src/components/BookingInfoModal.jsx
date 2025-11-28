@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Users, User, CheckCircle2, XCircle } from 'lucide-react';
+import { X, Users, User, CheckCircle2, XCircle, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { da } from 'date-fns/locale';
 import { openGoogleCalendar } from '../lib/calendar';
@@ -73,6 +73,17 @@ export function BookingInfoModal({ isOpen, onClose, booking }) {
                   </p>
                 </div>
               </div>
+
+              {/* Purpose */}
+              {booking.purpose && (
+                <div className="flex items-start space-x-3">
+                  <FileText className="h-5 w-5 text-fg-muted mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-fg-muted mb-1">Formål</p>
+                    <p className="text-base text-fg-default">{booking.purpose}</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           
