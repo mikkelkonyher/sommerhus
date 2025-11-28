@@ -5,6 +5,7 @@ import { BookingForm } from './components/BookingForm';
 import { BookingList } from './components/BookingList';
 import { Login } from './pages/Login';
 import { HouseInfo } from './pages/HouseInfo';
+import { ResetPassword } from './pages/ResetPassword';
 import { Trees, LogOut } from 'lucide-react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 
@@ -125,6 +126,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/" element={<Dashboard />} />
         <Route path="/info" element={<HouseInfoPage />} />
       </Routes>

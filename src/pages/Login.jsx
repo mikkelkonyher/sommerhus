@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Trees } from 'lucide-react';
 
 export function Login() {
@@ -8,7 +8,17 @@ export function Login() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.message) {
+      setSuccessMessage(location.state.message);
+      // Clear the state so message doesn't persist on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -84,6 +94,12 @@ export function Login() {
             </div>
           )}
 
+          {successMessage && (
+            <div className="rounded-md bg-success-fg/10 border border-success-fg/20 p-3 sm:p-4">
+              <p className="text-sm text-success-fg">{successMessage}</p>
+            </div>
+          )}
+
           <div>
             <button
               type="submit"
@@ -94,6 +110,15 @@ export function Login() {
             </button>
           </div>
         </form>
+
+        <div className="text-center">
+          <Link
+            to="/reset-password"
+            className="text-sm text-fg-muted hover:text-fg-default"
+          >
+            Glemt adgangskode?
+          </Link>
+        </div>
       </div>
     </div>
   );
