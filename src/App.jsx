@@ -86,7 +86,7 @@ function Dashboard() {
                   <div className="border-b border-border-muted px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
                     <h2 className="text-base sm:text-lg font-semibold text-fg-default">Kalender</h2>
                   </div>
-                  <div className="p-3 sm:p-4 lg:p-6 flex justify-center">
+                  <div className="p-2 sm:p-4 lg:p-6 overflow-x-auto">
                     <BookingCalendar
                       bookings={bookings}
                       onSelectDate={setSelectedRange}
