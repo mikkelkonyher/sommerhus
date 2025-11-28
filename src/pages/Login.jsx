@@ -33,9 +33,10 @@ export function Login() {
   return (
     <div className="min-h-screen bg-canvas-default flex items-center justify-center px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-2xl sm:text-3xl font-bold text-fg-default">
-            Skogkrogen
+        <div className="text-center">
+          <Trees className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-fg-default" />
+          <h2 className="mt-4 text-center text-2xl sm:text-3xl font-bold text-fg-default">
+            Skovkrogen
           </h2>
           <p className="mt-2 text-center text-sm text-fg-muted">
             Log ind for at booke sommerhuset
