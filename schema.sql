@@ -8,6 +8,7 @@ create table bookings (
   guest_email text not null,
   guest_count integer default 1 not null,
   allow_other_family boolean default false not null,
+  checkout_checklist jsonb default '{"empty_trash": false, "lock_doors": false, "turn_on_alarm": false, "close_windows": false, "turn_off_heat": false, "clean_kitchen": false}'::jsonb,
   status text not null default 'pending' check (status in ('pending', 'confirmed', 'cancelled'))
 );
 

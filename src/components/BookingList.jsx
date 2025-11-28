@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { format, isWithinInterval, parseISO } from 'date-fns';
 import { da } from 'date-fns/locale';
-import { CircleDot, CheckCircle2, XCircle, Calendar, Trash2, Edit2, Filter, X } from 'lucide-react';
+import { CircleDot, CheckCircle2, XCircle, Calendar, Trash2, Edit2, Filter, X, ClipboardCheck } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { ConfirmModal } from './ConfirmModal';
+import { CheckoutChecklist } from './CheckoutChecklist';
 
 export function BookingList({ bookings, onUpdate, userEmail }) {
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, bookingId: null });
+  const [checklistBooking, setChecklistBooking] = useState(null);
   
   // Filter states
   const [showFilters, setShowFilters] = useState(false);
@@ -257,6 +259,13 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
                     ) : (
                       <>
                         <button
+                          onClick={() => setChecklistBooking(booking)}
+                          className="text-accent-fg hover:text-accent-fg/80"
+                          title="Tjekliste"
+                        >
+                          <ClipboardCheck className="h-4 w-4" />
+                        </button>
+                        <button
                           onClick={() => handleEdit(booking)}
                           className="text-accent-fg hover:text-accent-fg/80"
                           title="Rediger"
@@ -280,6 +289,14 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
         );
       })}
         </div>
+      )}
+      
+      {checklistBooking && (
+        <CheckoutChecklist
+          booking={checklistBooking}
+          onClose={() => setChecklistBooking(null)}
+          onUpdate={onUpdate}
+        />
       )}
       
       <ConfirmModal
