@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { format, startOfDay } from 'date-fns';
 import { supabase } from '../lib/supabase';
+import { openGoogleCalendar } from '../lib/calendar';
 
 export function BookingForm({ selectedRange, onSuccess, userEmail }) {
   const [name, setName] = useState('');
@@ -66,22 +67,7 @@ export function BookingForm({ selectedRange, onSuccess, userEmail }) {
 
   const handleGoogleCalendar = () => {
     if (!lastBooking) return;
-
-    const { start, end, name } = lastBooking;
-    
-    // Google Calendar dates must be in format YYYYMMDD
-    // For all-day events, end date is exclusive, so we add 1 day
-    const startStr = format(start, 'yyyyMMdd');
-    // Add 1 day to end date for Google Calendar exclusivity
-    const endPlusOne = new Date(end);
-    endPlusOne.setDate(endPlusOne.getDate() + 1);
-    const endStr = format(endPlusOne, 'yyyyMMdd');
-
-    const title = encodeURIComponent(`Sommerhus: ${name}`);
-    const details = encodeURIComponent('Booking af sommerhus.');
-    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startStr}/${endStr}&details=${details}`;
-
-    window.open(url, '_blank');
+    openGoogleCalendar(lastBooking);
   };
 
   const handleCloseSuccess = () => {

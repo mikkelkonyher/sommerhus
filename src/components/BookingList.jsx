@@ -5,12 +5,14 @@ import { CircleDot, CheckCircle2, XCircle, Calendar, Trash2, Edit2, Filter, X, C
 import { supabase } from '../lib/supabase';
 import { ConfirmModal } from './ConfirmModal';
 import { CheckoutChecklist } from './CheckoutChecklist';
+import { BookingInfoModal } from './BookingInfoModal';
 
 export function BookingList({ bookings, onUpdate, userEmail }) {
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, bookingId: null });
   const [checklistBooking, setChecklistBooking] = useState(null);
+  const [viewBooking, setViewBooking] = useState(null);
   
   // Filter states
   const [showFilters, setShowFilters] = useState(false);
@@ -244,6 +246,16 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
                   <div className="flex items-center justify-between text-xs text-fg-muted">
                     <span>{booking.guest_email}</span>
                     <div className="flex items-center space-x-2">
+                      {/* Calendar - visible to everyone */}
+                      {booking.status === 'confirmed' && (
+                        <button
+                          onClick={() => setViewBooking(booking)}
+                          className="text-fg-muted hover:text-fg-default"
+                          title="Se detaljer og tilføj til kalender"
+                        >
+                          <Calendar className="h-4 w-4" />
+                        </button>
+                      )}
                       {/* Checklist - visible to everyone */}
                       {booking.status === 'confirmed' && (
                         <button
@@ -334,6 +346,17 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
                       <span>{booking.guest_email}</span>
                     </div>
                     <div className="flex items-center space-x-2">
+                      {/* Calendar - visible to everyone */}
+                      {booking.status === 'confirmed' && (
+                        <button
+                          onClick={() => setViewBooking(booking)}
+                          className="text-fg-muted hover:text-fg-default"
+                          title="Se detaljer og tilføj til kalender"
+                        >
+                          <Calendar className="h-4 w-4" />
+                        </button>
+                      )}
+
                       {/* Checklist - visible to everyone */}
                       {booking.status === 'confirmed' && (
                         <button
@@ -408,6 +431,12 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
         onCancel={handleDeleteCancel}
         title="Slet booking"
         message="Er du sikker på at du vil slette denne booking? Denne handling kan ikke fortrydes."
+      />
+      
+      <BookingInfoModal
+        isOpen={!!viewBooking}
+        onClose={() => setViewBooking(null)}
+        booking={viewBooking}
       />
     </div>
   );
