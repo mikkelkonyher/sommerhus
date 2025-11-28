@@ -99,22 +99,36 @@ export function BookingCalendar({ bookings, onSelectDate, selectedRange }) {
     return dates;
   }, [bookings]);
 
-  // Custom modifiers to show who booked - mark in red
+  // Color mapping for each family member
+  const getColorForPerson = (name) => {
+    const colorMap = {
+      'Kurt': { bg: '#3b82f6', border: '#2563eb', text: '#ffffff' },      // Blue
+      'Beth': { bg: '#ec4899', border: '#db2777', text: '#ffffff' },      // Pink
+      'Katrine': { bg: '#8b5cf6', border: '#7c3aed', text: '#ffffff' },   // Purple
+      'Stefan': { bg: '#10b981', border: '#059669', text: '#ffffff' },    // Green
+      'Mina': { bg: '#f59e0b', border: '#d97706', text: '#ffffff' },      // Orange
+      'Mikkel': { bg: '#06b6d4', border: '#0891b2', text: '#ffffff' }     // Cyan
+    };
+    return colorMap[name] || { bg: '#dc2626', border: '#b91c1c', text: '#ffffff' }; // Default red
+  };
+
+  // Custom modifiers to show who booked with color coding
   const modifiers = {};
   const modifiersStyles = {};
   
   bookings.forEach(booking => {
     if (booking.status === 'confirmed') {
       const key = `booking_${booking.id}`;
+      const colors = getColorForPerson(booking.guest_name);
       modifiers[key] = {
         from: startOfDay(new Date(booking.start_date)),
         to: startOfDay(new Date(booking.end_date))
       };
       modifiersStyles[key] = {
-        color: '#ffffff',
-        backgroundColor: '#dc2626', // Red background for booked dates
+        color: colors.text,
+        backgroundColor: colors.bg,
         fontWeight: 'bold',
-        border: '1px solid #b91c1c'
+        border: `1px solid ${colors.border}`
       };
     }
   });
@@ -200,6 +214,16 @@ export function BookingCalendar({ bookings, onSelectDate, selectedRange }) {
                                       (selectedRange?.from && selectedRange?.to && 
                                        day >= selectedRange.from && day <= selectedRange.to);
 
+                    // Find booking for this day to get the color
+                    const booking = isBooked ? bookings.find(b => {
+                      if (b.status !== 'confirmed') return false;
+                      const start = startOfDay(new Date(b.start_date));
+                      const end = startOfDay(new Date(b.end_date));
+                      return day >= start && day <= end;
+                    }) : null;
+                    
+                    const colors = booking ? getColorForPerson(booking.guest_name) : null;
+
                     return (
                       <button
                         key={idx}
@@ -234,7 +258,7 @@ export function BookingCalendar({ bookings, onSelectDate, selectedRange }) {
                           ${isPast 
                             ? 'text-fg-muted cursor-not-allowed opacity-50' 
                             : isBooked
-                            ? 'bg-red-600 text-white font-bold cursor-pointer hover:bg-red-700 border border-red-700'
+                            ? 'text-white font-bold cursor-pointer hover:opacity-90'
                             : isSelected
                             ? 'bg-blue-600 text-white font-semibold hover:bg-blue-700'
                             : isToday
@@ -242,6 +266,12 @@ export function BookingCalendar({ bookings, onSelectDate, selectedRange }) {
                             : 'text-fg-default hover:bg-canvas-subtle hover:border-border-default border border-transparent'
                           }
                         `}
+                        style={isBooked && colors ? {
+                          backgroundColor: colors.bg,
+                          borderColor: colors.border,
+                          borderWidth: '1px',
+                          borderStyle: 'solid'
+                        } : {}}
                         title={isBooked ? `Booket: ${format(day, 'd. MMM yyyy', { locale: da })}` : format(day, 'd. MMM yyyy', { locale: da })}
                       >
                         {format(day, 'd')}

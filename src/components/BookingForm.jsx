@@ -118,29 +118,36 @@ export function BookingForm({ selectedRange, onSuccess, userEmail }) {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label htmlFor="name" className="block text-sm font-medium text-fg-default">Navn</label>
-        <input
-          type="text"
+        <select
           id="name"
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="mt-1 block w-full rounded-md border border-border-default px-3 py-2 shadow-sm focus:border-accent-fg focus:ring-1 focus:ring-accent-fg sm:text-sm"
-          placeholder="Hvem skal bo der?"
-        />
+          className="mt-1 block w-full rounded-md border border-border-default px-3 py-2 shadow-sm focus:border-accent-fg focus:ring-1 focus:ring-accent-fg sm:text-sm bg-white"
+        >
+          <option value="">Vælg navn...</option>
+          <option value="Kurt">Kurt</option>
+          <option value="Beth">Beth</option>
+          <option value="Katrine">Katrine</option>
+          <option value="Stefan">Stefan</option>
+          <option value="Mina">Mina</option>
+          <option value="Mikkel">Mikkel</option>
+        </select>
       </div>
 
       <div>
         <label htmlFor="guestCount" className="block text-sm font-medium text-fg-default">Antal personer</label>
-        <input
-          type="number"
+        <select
           id="guestCount"
           required
-          min="1"
-          max="20"
           value={guestCount}
           onChange={(e) => setGuestCount(parseInt(e.target.value))}
-          className="mt-1 block w-full rounded-md border border-border-default px-3 py-2 shadow-sm focus:border-accent-fg focus:ring-1 focus:ring-accent-fg sm:text-sm"
-        />
+          className="mt-1 block w-full rounded-md border border-border-default px-3 py-2 shadow-sm focus:border-accent-fg focus:ring-1 focus:ring-accent-fg sm:text-sm bg-white"
+        >
+          {[...Array(20)].map((_, i) => i + 1).map(num => (
+            <option key={num} value={num}>{num}</option>
+          ))}
+        </select>
       </div>
 
       <div className="flex items-start">

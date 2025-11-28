@@ -10,6 +10,9 @@ import { BookingInfoModal } from './BookingInfoModal';
 export function BookingList({ bookings, onUpdate, userEmail }) {
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState('');
+  const [editStartDate, setEditStartDate] = useState('');
+  const [editEndDate, setEditEndDate] = useState('');
+  const [editGuestCount, setEditGuestCount] = useState(1);
   const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, bookingId: null });
   const [checklistBooking, setChecklistBooking] = useState(null);
   const [viewBooking, setViewBooking] = useState(null);
@@ -89,13 +92,46 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
   const handleEdit = (booking) => {
     setEditingId(booking.id);
     setEditName(booking.guest_name);
+    setEditStartDate(booking.start_date);
+    setEditEndDate(booking.end_date);
+    setEditGuestCount(booking.guest_count);
   };
 
   const handleSaveEdit = async (id) => {
     try {
+      // Validate dates
+      const newStart = new Date(editStartDate);
+      const newEnd = new Date(editEndDate);
+      
+      if (newEnd < newStart) {
+        alert('Slut dato skal være efter start dato.');
+        return;
+      }
+
+      // Check for conflicts with other bookings (excluding the current booking being edited)
+      const hasConflict = bookings.some(booking => {
+        if (booking.id === id || booking.status !== 'confirmed') return false;
+        
+        const bookingStart = new Date(booking.start_date);
+        const bookingEnd = new Date(booking.end_date);
+        
+        // Check if the new date range overlaps with this booking
+        return (newStart <= bookingEnd && newEnd >= bookingStart);
+      });
+
+      if (hasConflict) {
+        alert('De valgte datoer overlapper med en eksisterende booking. Vælg venligst andre datoer.');
+        return;
+      }
+
       const { error } = await supabase
         .from('bookings')
-        .update({ guest_name: editName })
+        .update({ 
+          guest_name: editName,
+          start_date: editStartDate,
+          end_date: editEndDate,
+          guest_count: editGuestCount
+        })
         .eq('id', id);
 
       if (error) throw error;
@@ -212,36 +248,80 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
               <div className="flex-1 min-w-0">
                 {/* Mobile: Stack layout */}
                 <div className="block sm:hidden space-y-2">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm font-semibold text-fg-default">
-                      {isEditing ? (
-                        <input
-                          type="text"
+                  {isEditing ? (
+                    <div className="space-y-2">
+                      <div>
+                        <label className="text-xs text-fg-muted">Navn</label>
+                        <select
                           value={editName}
                           onChange={(e) => setEditName(e.target.value)}
-                          className="border border-border-default rounded px-2 py-1 text-sm w-full"
-                          autoFocus
-                        />
-                      ) : (
-                        booking.guest_name
-                      )}
-                    </p>
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-canvas-subtle border border-border-default text-fg-muted flex-shrink-0">
-                      #{booking.id}
-                    </span>
-                  </div>
-                  
-                  <div className="text-xs text-fg-default">
-                    {format(new Date(booking.start_date), 'd. MMM', { locale: da })} - {format(new Date(booking.end_date), 'd. MMM yyyy', { locale: da })}
-                    {booking.guest_count > 1 && (
-                      <span className="ml-2 text-fg-muted">({booking.guest_count} personer)</span>
-                    )}
-                    {booking.allow_other_family && (
-                      <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-success-fg/10 text-success-fg border border-success-fg/20">
-                        Delt
-                      </span>
-                    )}
-                  </div>
+                          className="w-full border border-border-default rounded px-2 py-1 text-sm bg-white"
+                        >
+                          <option value="Kurt">Kurt</option>
+                          <option value="Beth">Beth</option>
+                          <option value="Katrine">Katrine</option>
+                          <option value="Stefan">Stefan</option>
+                          <option value="Mina">Mina</option>
+                          <option value="Mikkel">Mikkel</option>
+                        </select>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="text-xs text-fg-muted">Fra</label>
+                          <input
+                            type="date"
+                            value={editStartDate}
+                            onChange={(e) => setEditStartDate(e.target.value)}
+                            className="w-full border border-border-default rounded px-2 py-1 text-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs text-fg-muted">Til</label>
+                          <input
+                            type="date"
+                            value={editEndDate}
+                            onChange={(e) => setEditEndDate(e.target.value)}
+                            className="w-full border border-border-default rounded px-2 py-1 text-sm"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-xs text-fg-muted">Personer</label>
+                        <select
+                          value={editGuestCount}
+                          onChange={(e) => setEditGuestCount(parseInt(e.target.value))}
+                          className="w-full border border-border-default rounded px-2 py-1 text-sm bg-white"
+                        >
+                          {[...Array(20)].map((_, i) => i + 1).map(num => (
+                            <option key={num} value={num}>{num}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-semibold text-fg-default">
+                          {booking.guest_name}
+                        </p>
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-canvas-subtle border border-border-default text-fg-muted flex-shrink-0">
+                          #{booking.id}
+                        </span>
+                      </div>
+                      
+                      <div className="text-xs text-fg-default">
+                        {format(new Date(booking.start_date), 'd. MMM', { locale: da })} - {format(new Date(booking.end_date), 'd. MMM yyyy', { locale: da })}
+                        {booking.guest_count > 1 && (
+                          <span className="ml-2 text-fg-muted">({booking.guest_count} personer)</span>
+                        )}
+                        {booking.allow_other_family && (
+                          <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-success-fg/10 text-success-fg border border-success-fg/20">
+                            Delt
+                          </span>
+                        )}
+                      </div>
+                    </>
+                  )}
                   
                   <div className="flex items-center justify-between text-xs text-fg-muted">
                     <span>{booking.guest_email}</span>
@@ -311,18 +391,61 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
 
                 {/* Desktop: Inline layout */}
                 <div className="hidden sm:block">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-semibold text-fg-default truncate">
-                      {isEditing ? (
-                        <input
-                          type="text"
-                          value={editName}
-                          onChange={(e) => setEditName(e.target.value)}
-                          className="border border-border-default rounded px-2 py-1 text-sm"
-                          autoFocus
-                        />
-                      ) : (
-                        <>
+                  {isEditing ? (
+                    <div className="space-y-3 mb-2">
+                      <div className="grid grid-cols-3 gap-3">
+                        <div>
+                          <label className="text-xs text-fg-muted block mb-1">Navn</label>
+                          <select
+                            value={editName}
+                            onChange={(e) => setEditName(e.target.value)}
+                            className="w-full border border-border-default rounded px-2 py-1 text-sm bg-white"
+                            autoFocus
+                          >
+                            <option value="Kurt">Kurt</option>
+                            <option value="Beth">Beth</option>
+                            <option value="Katrine">Katrine</option>
+                            <option value="Stefan">Stefan</option>
+                            <option value="Mina">Mina</option>
+                            <option value="Mikkel">Mikkel</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="text-xs text-fg-muted block mb-1">Fra dato</label>
+                          <input
+                            type="date"
+                            value={editStartDate}
+                            onChange={(e) => setEditStartDate(e.target.value)}
+                            className="w-full border border-border-default rounded px-2 py-1 text-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs text-fg-muted block mb-1">Til dato</label>
+                          <input
+                            type="date"
+                            value={editEndDate}
+                            onChange={(e) => setEditEndDate(e.target.value)}
+                            className="w-full border border-border-default rounded px-2 py-1 text-sm"
+                          />
+                        </div>
+                      </div>
+                      <div className="w-1/3">
+                        <label className="text-xs text-fg-muted block mb-1">Antal personer</label>
+                        <select
+                          value={editGuestCount}
+                          onChange={(e) => setEditGuestCount(parseInt(e.target.value))}
+                          className="w-full border border-border-default rounded px-2 py-1 text-sm bg-white"
+                        >
+                          {[...Array(20)].map((_, i) => i + 1).map(num => (
+                            <option key={num} value={num}>{num}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-semibold text-fg-default truncate">
                           {booking.guest_name} <span className="font-normal text-fg-muted">bookede</span> {format(new Date(booking.start_date), 'd. MMM', { locale: da })} - {format(new Date(booking.end_date), 'd. MMM yyyy', { locale: da })}
                           {booking.guest_count > 1 && (
                             <span className="ml-2 text-xs text-fg-muted">({booking.guest_count} personer)</span>
@@ -332,13 +455,13 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
                               Delt
                             </span>
                           )}
-                        </>
-                      )}
-                    </p>
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-canvas-subtle border border-border-default text-fg-muted">
-                      #{booking.id}
-                    </span>
-                  </div>
+                        </p>
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-canvas-subtle border border-border-default text-fg-muted">
+                          #{booking.id}
+                        </span>
+                      </div>
+                    </>
+                  )}
                   <div className="mt-1 flex items-center justify-between text-xs text-fg-muted">
                     <div>
                       <span>Oprettet {format(new Date(booking.created_at), 'd. MMM yyyy', { locale: da })}</span>
