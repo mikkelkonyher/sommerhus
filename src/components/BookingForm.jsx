@@ -8,6 +8,7 @@ export function BookingForm({ selectedRange, onSuccess, userEmail }) {
   const [allowOtherFamily, setAllowOtherFamily] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [lastBooking, setLastBooking] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -44,11 +45,17 @@ export function BookingForm({ selectedRange, onSuccess, userEmail }) {
 
       if (insertError) throw insertError;
 
+      // Store booking details for the success view
+      setLastBooking({
+        start: selectedRange.from,
+        end: endDate,
+        name: name
+      });
+
       setName('');
       setGuestCount(1);
       setAllowOtherFamily(false);
-      onSuccess();
-      alert('Booking oprettet!');
+      // Don't call onSuccess immediately, let user see the success screen
     } catch (err) {
       console.error('Error booking:', err);
       setError('Der skete en fejl. Prøv igen senere.');
@@ -56,6 +63,70 @@ export function BookingForm({ selectedRange, onSuccess, userEmail }) {
       setLoading(false);
     }
   };
+
+  const handleGoogleCalendar = () => {
+    if (!lastBooking) return;
+
+    const { start, end, name } = lastBooking;
+    
+    // Google Calendar dates must be in format YYYYMMDD
+    // For all-day events, end date is exclusive, so we add 1 day
+    const startStr = format(start, 'yyyyMMdd');
+    // Add 1 day to end date for Google Calendar exclusivity
+    const endPlusOne = new Date(end);
+    endPlusOne.setDate(endPlusOne.getDate() + 1);
+    const endStr = format(endPlusOne, 'yyyyMMdd');
+
+    const title = encodeURIComponent(`Sommerhus: ${name}`);
+    const details = encodeURIComponent('Booking af sommerhus.');
+    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startStr}/${endStr}&details=${details}`;
+
+    window.open(url, '_blank');
+  };
+
+  const handleCloseSuccess = () => {
+    setLastBooking(null);
+    onSuccess(); // Refresh parent
+  };
+
+  if (lastBooking) {
+    return (
+      <div className="text-center space-y-6 py-4">
+        <div className="space-y-2">
+          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+            <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium text-fg-default">Booking bekræftet!</h3>
+          <p className="text-sm text-fg-muted">
+            Din booking er registreret.
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          <button
+            type="button"
+            onClick={handleGoogleCalendar}
+            className="w-full flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-fg"
+          >
+            <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+               <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7 5h5v5h-5v-5z"/>
+            </svg>
+            Tilføj til Google Kalender
+          </button>
+
+          <button
+            type="button"
+            onClick={handleCloseSuccess}
+            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-btn-primary-bg hover:bg-btn-primary-hover-bg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-fg"
+          >
+            Luk
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
