@@ -241,50 +241,57 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
                   
                   <div className="flex items-center justify-between text-xs text-fg-muted">
                     <span>{booking.guest_email}</span>
-                    {isOwner && booking.status === 'confirmed' && (
-                      <div className="flex items-center space-x-2">
-                        {isEditing ? (
-                          <>
-                            <button
-                              onClick={() => handleSaveEdit(booking.id)}
-                              className="text-success-fg hover:text-success-fg/80 text-xs"
-                            >
-                              Gem
-                            </button>
-                            <button
-                              onClick={() => setEditingId(null)}
-                              className="text-fg-muted hover:text-fg-default text-xs"
-                            >
-                              Annuller
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            <button
-                              onClick={() => setChecklistBooking(booking)}
-                              className="text-accent-fg hover:text-accent-fg/80"
-                              title="Tjekliste"
-                            >
-                              <ClipboardCheck className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => handleEdit(booking)}
-                              className="text-accent-fg hover:text-accent-fg/80"
-                              title="Rediger"
-                            >
-                              <Edit2 className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteClick(booking.id)}
-                              className="text-danger-fg hover:text-danger-fg/80"
-                              title="Slet booking"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    )}
+                    <div className="flex items-center space-x-2">
+                      {/* Checklist - visible to everyone */}
+                      {booking.status === 'confirmed' && (
+                        <button
+                          onClick={() => setChecklistBooking(booking)}
+                          className="text-accent-fg hover:text-accent-fg/80"
+                          title="Tjekliste"
+                        >
+                          <ClipboardCheck className="h-4 w-4" />
+                        </button>
+                      )}
+                      
+                      {/* Edit/Delete - only for owner */}
+                      {isOwner && booking.status === 'confirmed' && (
+                        <>
+                          {isEditing ? (
+                            <>
+                              <button
+                                onClick={() => handleSaveEdit(booking.id)}
+                                className="text-success-fg hover:text-success-fg/80 text-xs"
+                              >
+                                Gem
+                              </button>
+                              <button
+                                onClick={() => setEditingId(null)}
+                                className="text-fg-muted hover:text-fg-default text-xs"
+                              >
+                                Annuller
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                onClick={() => handleEdit(booking)}
+                                className="text-accent-fg hover:text-accent-fg/80"
+                                title="Rediger"
+                              >
+                                <Edit2 className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteClick(booking.id)}
+                                className="text-danger-fg hover:text-danger-fg/80"
+                                title="Slet booking"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </>
+                          )}
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -324,50 +331,57 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
                       <span className="mx-1">&middot;</span>
                       <span>{booking.guest_email}</span>
                     </div>
-                    {isOwner && booking.status === 'confirmed' && (
-                      <div className="flex items-center space-x-2">
-                        {isEditing ? (
-                          <>
-                            <button
-                              onClick={() => handleSaveEdit(booking.id)}
-                              className="text-success-fg hover:text-success-fg/80"
-                            >
-                              Gem
-                            </button>
-                            <button
-                              onClick={() => setEditingId(null)}
-                              className="text-fg-muted hover:text-fg-default"
-                            >
-                              Annuller
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            <button
-                              onClick={() => setChecklistBooking(booking)}
-                              className="text-accent-fg hover:text-accent-fg/80"
-                              title="Tjekliste"
-                            >
-                              <ClipboardCheck className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => handleEdit(booking)}
-                              className="text-accent-fg hover:text-accent-fg/80"
-                              title="Rediger"
-                            >
-                              <Edit2 className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteClick(booking.id)}
-                              className="text-danger-fg hover:text-danger-fg/80"
-                              title="Slet booking"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    )}
+                    <div className="flex items-center space-x-2">
+                      {/* Checklist - visible to everyone */}
+                      {booking.status === 'confirmed' && (
+                        <button
+                          onClick={() => setChecklistBooking(booking)}
+                          className="text-accent-fg hover:text-accent-fg/80"
+                          title="Tjekliste"
+                        >
+                          <ClipboardCheck className="h-4 w-4" />
+                        </button>
+                      )}
+                      
+                      {/* Edit/Delete - only for owner */}
+                      {isOwner && booking.status === 'confirmed' && (
+                        <>
+                          {isEditing ? (
+                            <>
+                              <button
+                                onClick={() => handleSaveEdit(booking.id)}
+                                className="text-success-fg hover:text-success-fg/80"
+                              >
+                                Gem
+                              </button>
+                              <button
+                                onClick={() => setEditingId(null)}
+                                className="text-fg-muted hover:text-fg-default"
+                              >
+                                Annuller
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                onClick={() => handleEdit(booking)}
+                                className="text-accent-fg hover:text-accent-fg/80"
+                                title="Rediger"
+                              >
+                                <Edit2 className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteClick(booking.id)}
+                                className="text-danger-fg hover:text-danger-fg/80"
+                                title="Slet booking"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </>
+                          )}
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
