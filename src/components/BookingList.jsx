@@ -342,26 +342,28 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
                   )}
                   
                   <div className="flex items-center justify-between text-xs text-fg-muted">
-                    <span>{booking.guest_email}</span>
-                    <div className="flex items-center space-x-2">
+                    <span className="truncate flex-1 mr-2">{booking.guest_email}</span>
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
                       {/* Calendar - visible to everyone */}
                       {booking.status === 'confirmed' && (
                         <button
                           onClick={() => setViewBooking(booking)}
-                          className="text-fg-muted hover:text-fg-default"
+                          className="p-2 rounded-md text-fg-muted hover:text-fg-default hover:bg-canvas-subtle transition-colors touch-manipulation"
                           title="Se detaljer og tilføj til kalender"
+                          aria-label="Se detaljer og tilføj til kalender"
                         >
-                          <Calendar className="h-4 w-4" />
+                          <Calendar className="h-5 w-5" />
                         </button>
                       )}
                       {/* Checklist - visible to everyone */}
                       {booking.status === 'confirmed' && (
                         <button
                           onClick={() => setChecklistBooking(booking)}
-                          className="text-accent-fg hover:text-accent-fg/80"
+                          className="p-2 rounded-md text-accent-fg hover:text-accent-fg/80 hover:bg-accent-fg/10 transition-colors touch-manipulation"
                           title="Tjekliste"
+                          aria-label="Tjekliste"
                         >
-                          <ClipboardCheck className="h-4 w-4" />
+                          <ClipboardCheck className="h-5 w-5" />
                         </button>
                       )}
                       
@@ -372,13 +374,13 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
                             <>
                               <button
                                 onClick={() => handleSaveEdit(booking.id)}
-                                className="text-success-fg hover:text-success-fg/80 text-xs"
+                                className="px-3 py-1.5 rounded-md text-xs font-medium text-white bg-success-fg hover:bg-success-fg/90 transition-colors touch-manipulation"
                               >
                                 Gem
                               </button>
                               <button
                                 onClick={() => setEditingId(null)}
-                                className="text-fg-muted hover:text-fg-default text-xs"
+                                className="px-3 py-1.5 rounded-md text-xs font-medium text-fg-muted hover:text-fg-default hover:bg-canvas-subtle transition-colors touch-manipulation"
                               >
                                 Annuller
                               </button>
@@ -387,17 +389,19 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
                             <>
                               <button
                                 onClick={() => handleEdit(booking)}
-                                className="text-accent-fg hover:text-accent-fg/80"
+                                className="p-2 rounded-md text-accent-fg hover:text-accent-fg/80 hover:bg-accent-fg/10 transition-colors touch-manipulation"
                                 title="Rediger"
+                                aria-label="Rediger"
                               >
-                                <Edit2 className="h-4 w-4" />
+                                <Edit2 className="h-5 w-5" />
                               </button>
                               <button
                                 onClick={() => handleDeleteClick(booking.id)}
-                                className="text-danger-fg hover:text-danger-fg/80"
+                                className="p-2 rounded-md text-danger-fg hover:text-danger-fg/80 hover:bg-danger-fg/10 transition-colors touch-manipulation"
                                 title="Slet booking"
+                                aria-label="Slet booking"
                               >
-                                <Trash2 className="h-4 w-4" />
+                                <Trash2 className="h-5 w-5" />
                               </button>
                             </>
                           )}
@@ -496,20 +500,21 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
                     </>
                   )}
                   <div className="mt-1 flex items-center justify-between text-xs text-fg-muted">
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <span>Oprettet {format(new Date(booking.created_at), 'd. MMM yyyy', { locale: da })}</span>
                       <span className="mx-1">&middot;</span>
-                      <span>{booking.guest_email}</span>
+                      <span className="truncate">{booking.guest_email}</span>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center gap-1.5 flex-shrink-0 ml-2">
                       {/* Calendar - visible to everyone */}
                       {booking.status === 'confirmed' && (
                         <button
                           onClick={() => setViewBooking(booking)}
-                          className="text-fg-muted hover:text-fg-default"
+                          className="p-2 rounded-md text-fg-muted hover:text-fg-default hover:bg-canvas-subtle transition-colors touch-manipulation"
                           title="Se detaljer og tilføj til kalender"
+                          aria-label="Se detaljer og tilføj til kalender"
                         >
-                          <Calendar className="h-4 w-4" />
+                          <Calendar className="h-5 w-5" />
                         </button>
                       )}
 
@@ -517,10 +522,11 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
                       {booking.status === 'confirmed' && (
                         <button
                           onClick={() => setChecklistBooking(booking)}
-                          className="text-accent-fg hover:text-accent-fg/80"
+                          className="p-2 rounded-md text-accent-fg hover:text-accent-fg/80 hover:bg-accent-fg/10 transition-colors touch-manipulation"
                           title="Tjekliste"
+                          aria-label="Tjekliste"
                         >
-                          <ClipboardCheck className="h-4 w-4" />
+                          <ClipboardCheck className="h-5 w-5" />
                         </button>
                       )}
                       
@@ -531,13 +537,13 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
                             <>
                               <button
                                 onClick={() => handleSaveEdit(booking.id)}
-                                className="text-success-fg hover:text-success-fg/80"
+                                className="px-3 py-1.5 rounded-md text-xs font-medium text-white bg-success-fg hover:bg-success-fg/90 transition-colors touch-manipulation"
                               >
                                 Gem
                               </button>
                               <button
                                 onClick={() => setEditingId(null)}
-                                className="text-fg-muted hover:text-fg-default"
+                                className="px-3 py-1.5 rounded-md text-xs font-medium text-fg-muted hover:text-fg-default hover:bg-canvas-subtle transition-colors touch-manipulation"
                               >
                                 Annuller
                               </button>
@@ -546,17 +552,19 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
                             <>
                               <button
                                 onClick={() => handleEdit(booking)}
-                                className="text-accent-fg hover:text-accent-fg/80"
+                                className="p-2 rounded-md text-accent-fg hover:text-accent-fg/80 hover:bg-accent-fg/10 transition-colors touch-manipulation"
                                 title="Rediger"
+                                aria-label="Rediger"
                               >
-                                <Edit2 className="h-4 w-4" />
+                                <Edit2 className="h-5 w-5" />
                               </button>
                               <button
                                 onClick={() => handleDeleteClick(booking.id)}
-                                className="text-danger-fg hover:text-danger-fg/80"
+                                className="p-2 rounded-md text-danger-fg hover:text-danger-fg/80 hover:bg-danger-fg/10 transition-colors touch-manipulation"
                                 title="Slet booking"
+                                aria-label="Slet booking"
                               >
-                                <Trash2 className="h-4 w-4" />
+                                <Trash2 className="h-5 w-5" />
                               </button>
                             </>
                           )}
