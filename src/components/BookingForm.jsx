@@ -155,7 +155,7 @@ export function BookingForm({ selectedRange, onSuccess, userEmail }) {
         </div>
         <div className="ml-3 text-sm">
           <label htmlFor="allowOtherFamily" className="font-medium text-fg-default">
-            Tillad andre familiemedlemmer
+           Delt
           </label>
           <p className="text-fg-muted text-xs">Andre kan også bruge huset i denne periode</p>
         </div>
