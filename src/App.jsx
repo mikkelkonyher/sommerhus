@@ -62,7 +62,7 @@ function Dashboard() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2 sm:space-x-3">
                   <Trees className="h-6 w-6 sm:h-8 sm:w-8 text-fg-default" />
-                  <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-fg-default">Skogkrogen</h1>
+                  <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-fg-default">Skovkrogen</h1>
                 </div>
                 <button
                   onClick={handleLogout}
