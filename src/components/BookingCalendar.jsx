@@ -76,7 +76,7 @@ export function BookingCalendar({ bookings, onSelectDate, selectedRange }) {
         month={month}
         onMonthChange={setMonth}
         fromMonth={today}
-        toMonth={addMonths(today, 12)}
+        toMonth={addMonths(today, 60)}
         captionLayout="dropdown"
         numberOfMonths={1}
         className="font-sans"

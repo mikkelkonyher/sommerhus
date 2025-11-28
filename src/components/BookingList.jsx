@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { format } from 'date-fns';
+import { format, isWithinInterval, parseISO } from 'date-fns';
 import { da } from 'date-fns/locale';
-import { CircleDot, CheckCircle2, XCircle, Calendar, Trash2, Edit2 } from 'lucide-react';
+import { CircleDot, CheckCircle2, XCircle, Calendar, Trash2, Edit2, Filter, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { ConfirmModal } from './ConfirmModal';
 
@@ -9,11 +9,50 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, bookingId: null });
+  
+  // Filter states
+  const [showFilters, setShowFilters] = useState(false);
+  const [filterEmail, setFilterEmail] = useState('');
+  const [filterStartDate, setFilterStartDate] = useState('');
+  const [filterEndDate, setFilterEndDate] = useState('');
+  const [filterSharedOnly, setFilterSharedOnly] = useState(false);
 
   // Filter only future bookings and sort by date
-  const futureBookings = bookings
+  let futureBookings = bookings
     .filter(b => new Date(b.end_date) >= new Date())
     .sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+
+  // Apply filters
+  if (filterEmail) {
+    futureBookings = futureBookings.filter(b => 
+      b.guest_email.toLowerCase().includes(filterEmail.toLowerCase())
+    );
+  }
+
+  if (filterStartDate) {
+    futureBookings = futureBookings.filter(b => 
+      new Date(b.start_date) >= new Date(filterStartDate)
+    );
+  }
+
+  if (filterEndDate) {
+    futureBookings = futureBookings.filter(b => 
+      new Date(b.end_date) <= new Date(filterEndDate)
+    );
+  }
+
+  if (filterSharedOnly) {
+    futureBookings = futureBookings.filter(b => b.allow_other_family === true);
+  }
+
+  const clearFilters = () => {
+    setFilterEmail('');
+    setFilterStartDate('');
+    setFilterEndDate('');
+    setFilterSharedOnly(false);
+  };
+
+  const hasActiveFilters = filterEmail || filterStartDate || filterEndDate || filterSharedOnly;
 
   const handleDeleteClick = (id) => {
     setDeleteConfirm({ isOpen: true, bookingId: id });
@@ -62,17 +101,92 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
     }
   };
 
-  if (futureBookings.length === 0) {
-    return (
-      <div className="text-center p-8 text-fg-muted">
-        <Calendar className="mx-auto h-8 w-8 mb-2 opacity-50" />
-        <p>Ingen kommende bookinger.</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="divide-y divide-border-muted">
+    <div>
+      {/* Filter Section */}
+      <div className="border-b border-border-muted p-4 bg-canvas-subtle">
+        <div className="flex items-center justify-between mb-3">
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center space-x-2 text-sm font-medium text-fg-default hover:text-accent-fg"
+          >
+            <Filter className="h-4 w-4" />
+            <span>Filtrer bookinger</span>
+          </button>
+          {hasActiveFilters && (
+            <button
+              onClick={clearFilters}
+              className="flex items-center space-x-1 text-xs text-fg-muted hover:text-danger-fg"
+            >
+              <X className="h-3 w-3" />
+              <span>Ryd filtre</span>
+            </button>
+          )}
+        </div>
+
+        {showFilters && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+            <div>
+              <label className="block text-xs font-medium text-fg-default mb-1">Email</label>
+              <input
+                type="text"
+                value={filterEmail}
+                onChange={(e) => setFilterEmail(e.target.value)}
+                placeholder="Søg efter email..."
+                className="w-full text-sm rounded-md border border-border-default px-2 py-1.5 focus:border-accent-fg focus:ring-1 focus:ring-accent-fg"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-fg-default mb-1">Fra dato</label>
+              <input
+                type="date"
+                value={filterStartDate}
+                onChange={(e) => setFilterStartDate(e.target.value)}
+                className="w-full text-sm rounded-md border border-border-default px-2 py-1.5 focus:border-accent-fg focus:ring-1 focus:ring-accent-fg"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-fg-default mb-1">Til dato</label>
+              <input
+                type="date"
+                value={filterEndDate}
+                onChange={(e) => setFilterEndDate(e.target.value)}
+                className="w-full text-sm rounded-md border border-border-default px-2 py-1.5 focus:border-accent-fg focus:ring-1 focus:ring-accent-fg"
+              />
+            </div>
+
+            <div className="flex items-center">
+              <input
+                id="filterShared"
+                type="checkbox"
+                checked={filterSharedOnly}
+                onChange={(e) => setFilterSharedOnly(e.target.checked)}
+                className="h-4 w-4 rounded border-border-default text-accent-fg focus:ring-accent-fg"
+              />
+              <label htmlFor="filterShared" className="ml-2 text-sm text-fg-default">
+                Kun delte bookinger
+              </label>
+            </div>
+          </div>
+        )}
+
+        {hasActiveFilters && (
+          <div className="mt-3 text-xs text-fg-muted">
+            Viser {futureBookings.length} booking{futureBookings.length !== 1 ? 'er' : ''}
+          </div>
+        )}
+      </div>
+
+      {/* Booking List */}
+      {futureBookings.length === 0 ? (
+        <div className="text-center p-8 text-fg-muted">
+          <Calendar className="mx-auto h-8 w-8 mb-2 opacity-50" />
+          <p>{hasActiveFilters ? 'Ingen bookinger matcher dine filtre.' : 'Ingen kommende bookinger.'}</p>
+        </div>
+      ) : (
+        <div className="divide-y divide-border-muted">
       {futureBookings.map((booking) => {
         const isOwner = booking.guest_email === userEmail;
         const isEditing = editingId === booking.id;
@@ -165,6 +279,8 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
           </div>
         );
       })}
+        </div>
+      )}
       
       <ConfirmModal
         isOpen={deleteConfirm.isOpen}
