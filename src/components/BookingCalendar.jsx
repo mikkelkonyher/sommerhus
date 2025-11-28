@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { DayPicker } from 'react-day-picker';
-import { addMonths, isSameDay, isBefore, startOfToday } from 'date-fns';
+import { addMonths, isSameDay, isBefore, startOfToday, startOfDay } from 'date-fns';
 import { da } from 'date-fns/locale';
 import 'react-day-picker/dist/style.css';
 
@@ -9,11 +9,12 @@ export function BookingCalendar({ bookings, onSelectDate, selectedRange }) {
   const [month, setMonth] = useState(today);
 
   // Convert bookings to disabled days
+  // Normalize dates to start of day to avoid timezone issues
   const disabledDays = bookings
     .filter(b => b.status === 'confirmed')
     .map(b => ({
-      from: new Date(b.start_date),
-      to: new Date(b.end_date)
+      from: startOfDay(new Date(b.start_date)),
+      to: startOfDay(new Date(b.end_date))
     }));
 
   // Add past dates to disabled days
@@ -22,11 +23,13 @@ export function BookingCalendar({ bookings, onSelectDate, selectedRange }) {
   const footer = selectedRange?.from ? (
     <p className="mt-4 text-center text-fg-default text-xs sm:text-sm px-2">
       {selectedRange.to
-        ? `${selectedRange.from.toLocaleDateString('da-DK', { day: 'numeric', month: 'short' })} - ${selectedRange.to.toLocaleDateString('da-DK', { day: 'numeric', month: 'short', year: 'numeric' })}`
-        : `Fra: ${selectedRange.from.toLocaleDateString('da-DK', { day: 'numeric', month: 'short' })}`}
+        ? selectedRange.from.getTime() === selectedRange.to.getTime()
+          ? selectedRange.from.toLocaleDateString('da-DK', { day: 'numeric', month: 'short', year: 'numeric' })
+          : `${selectedRange.from.toLocaleDateString('da-DK', { day: 'numeric', month: 'short' })} - ${selectedRange.to.toLocaleDateString('da-DK', { day: 'numeric', month: 'short', year: 'numeric' })}`
+        : selectedRange.from.toLocaleDateString('da-DK', { day: 'numeric', month: 'short', year: 'numeric' })}
     </p>
   ) : (
-    <p className="mt-4 text-center text-fg-muted text-xs sm:text-sm px-2">Vælg periode</p>
+    <p className="mt-4 text-center text-fg-muted text-xs sm:text-sm px-2">Vælg dato</p>
   );
 
   // Custom modifiers to show who booked
@@ -37,8 +40,8 @@ export function BookingCalendar({ bookings, onSelectDate, selectedRange }) {
     if (booking.status === 'confirmed') {
       const key = `booking_${booking.id}`;
       modifiers[key] = {
-        from: new Date(booking.start_date),
-        to: new Date(booking.end_date)
+        from: startOfDay(new Date(booking.start_date)),
+        to: startOfDay(new Date(booking.end_date))
       };
       modifiersStyles[key] = {
         color: '#57606a', // fg-muted
@@ -91,11 +94,14 @@ export function BookingCalendar({ bookings, onSelectDate, selectedRange }) {
         modifiersStyles={modifiersStyles}
         onDayClick={(day, modifiers) => {
            // Check if day is booked and alert who booked it
-           const booking = bookings.find(b => 
-             b.status === 'confirmed' && 
-             day >= new Date(b.start_date) && 
-             day <= new Date(b.end_date)
-           );
+           // Normalize dates for comparison
+           const normalizedDay = startOfDay(day);
+           const booking = bookings.find(b => {
+             if (b.status !== 'confirmed') return false;
+             const start = startOfDay(new Date(b.start_date));
+             const end = startOfDay(new Date(b.end_date));
+             return normalizedDay >= start && normalizedDay <= end;
+           });
            if (booking) {
              alert(`Booket af: ${booking.guest_name}`);
            }

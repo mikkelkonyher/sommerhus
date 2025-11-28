@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { format, startOfDay } from 'date-fns';
 import { supabase } from '../lib/supabase';
 
 export function BookingForm({ selectedRange, onSuccess, userEmail }) {
@@ -10,8 +11,8 @@ export function BookingForm({ selectedRange, onSuccess, userEmail }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedRange?.from || !selectedRange?.to) {
-      setError('Vælg venligst en periode først.');
+    if (!selectedRange?.from) {
+      setError('Vælg venligst en dato først.');
       return;
     }
 
@@ -19,12 +20,20 @@ export function BookingForm({ selectedRange, onSuccess, userEmail }) {
     setError(null);
 
     try {
+      // If only 'from' is selected, use it as both start and end date (single day booking)
+      const endDate = selectedRange.to || selectedRange.from;
+      
+      // Format dates as date-only strings (YYYY-MM-DD) to avoid timezone issues
+      // Use startOfDay to normalize to midnight local time, then format as date string
+      const startDateStr = format(startOfDay(selectedRange.from), 'yyyy-MM-dd');
+      const endDateStr = format(startOfDay(endDate), 'yyyy-MM-dd');
+      
       const { error: insertError } = await supabase
         .from('bookings')
         .insert([
           {
-            start_date: selectedRange.from,
-            end_date: selectedRange.to,
+            start_date: startDateStr,
+            end_date: endDateStr,
             guest_name: name,
             guest_email: userEmail,
             guest_count: guestCount,
@@ -101,14 +110,14 @@ export function BookingForm({ selectedRange, onSuccess, userEmail }) {
 
       <button
         type="submit"
-        disabled={loading || !selectedRange?.from || !selectedRange?.to}
+        disabled={loading || !selectedRange?.from}
         className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-btn-primary-bg hover:bg-btn-primary-hover-bg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-fg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         {loading ? 'Booker...' : 'Book nu'}
       </button>
       
       {!selectedRange?.from && (
-        <p className="text-xs text-fg-muted text-center mt-2">Vælg datoer i kalenderen for at booke.</p>
+        <p className="text-xs text-fg-muted text-center mt-2">Vælg dato i kalenderen for at booke.</p>
       )}
     </form>
   );

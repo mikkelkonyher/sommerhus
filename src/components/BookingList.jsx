@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { format, isWithinInterval, parseISO } from 'date-fns';
+import { format, isWithinInterval, parseISO, startOfDay } from 'date-fns';
 import { da } from 'date-fns/locale';
 import { CircleDot, CheckCircle2, XCircle, Calendar, Trash2, Edit2, Filter, X, ClipboardCheck } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -20,8 +20,10 @@ export function BookingList({ bookings, onUpdate, userEmail }) {
   const [filterSharedOnly, setFilterSharedOnly] = useState(false);
 
   // Filter only future bookings and sort by date
+  // Normalize dates to start of day for consistent comparison
+  const today = startOfDay(new Date());
   let futureBookings = bookings
-    .filter(b => new Date(b.end_date) >= new Date())
+    .filter(b => startOfDay(new Date(b.end_date)) >= today)
     .sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
 
   // Apply filters
