@@ -1,0 +1,178 @@
+import React, { useState } from 'react';
+import { format } from 'date-fns';
+import { da } from 'date-fns/locale';
+import { CircleDot, CheckCircle2, XCircle, Calendar, Trash2, Edit2 } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import { ConfirmModal } from './ConfirmModal';
+
+export function BookingList({ bookings, onUpdate, userEmail }) {
+  const [editingId, setEditingId] = useState(null);
+  const [editName, setEditName] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, bookingId: null });
+
+  // Filter only future bookings and sort by date
+  const futureBookings = bookings
+    .filter(b => new Date(b.end_date) >= new Date())
+    .sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+
+  const handleDeleteClick = (id) => {
+    setDeleteConfirm({ isOpen: true, bookingId: id });
+  };
+
+  const handleDeleteConfirm = () => {
+    const { bookingId } = deleteConfirm;
+    
+    supabase
+      .from('bookings')
+      .delete()
+      .eq('id', bookingId)
+      .then(({ error }) => {
+        if (error) {
+          console.error('Error deleting booking:', error);
+          alert('Der skete en fejl ved sletning.');
+        } else {
+          onUpdate();
+        }
+        setDeleteConfirm({ isOpen: false, bookingId: null });
+      });
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteConfirm({ isOpen: false, bookingId: null });
+  };
+
+  const handleEdit = (booking) => {
+    setEditingId(booking.id);
+    setEditName(booking.guest_name);
+  };
+
+  const handleSaveEdit = async (id) => {
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .update({ guest_name: editName })
+        .eq('id', id);
+
+      if (error) throw error;
+      setEditingId(null);
+      onUpdate();
+    } catch (err) {
+      console.error('Error updating booking:', err);
+      alert('Der skete en fejl ved opdatering.');
+    }
+  };
+
+  if (futureBookings.length === 0) {
+    return (
+      <div className="text-center p-8 text-fg-muted">
+        <Calendar className="mx-auto h-8 w-8 mb-2 opacity-50" />
+        <p>Ingen kommende bookinger.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="divide-y divide-border-muted">
+      {futureBookings.map((booking) => {
+        const isOwner = booking.guest_email === userEmail;
+        const isEditing = editingId === booking.id;
+
+        return (
+          <div key={booking.id} className="p-4 hover:bg-canvas-subtle transition-colors flex items-start space-x-3">
+            <div className="mt-0.5">
+              {booking.status === 'confirmed' ? (
+                <CheckCircle2 className="h-5 w-5 text-success-fg" />
+              ) : booking.status === 'cancelled' ? (
+                <XCircle className="h-5 w-5 text-danger-fg" />
+              ) : (
+                <CircleDot className="h-5 w-5 text-attention-fg" />
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold text-fg-default truncate">
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      className="border border-border-default rounded px-2 py-1 text-sm"
+                      autoFocus
+                    />
+                  ) : (
+                    <>
+                      {booking.guest_name} <span className="font-normal text-fg-muted">bookede</span> {format(new Date(booking.start_date), 'd. MMM', { locale: da })} - {format(new Date(booking.end_date), 'd. MMM yyyy', { locale: da })}
+                      {booking.guest_count > 1 && (
+                        <span className="ml-2 text-xs text-fg-muted">({booking.guest_count} personer)</span>
+                      )}
+                      {booking.allow_other_family && (
+                        <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-success-fg/10 text-success-fg border border-success-fg/20">
+                          Delt
+                        </span>
+                      )}
+                    </>
+                  )}
+                </p>
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-canvas-subtle border border-border-default text-fg-muted">
+                  #{booking.id}
+                </span>
+              </div>
+              <div className="mt-1 flex items-center justify-between text-xs text-fg-muted">
+                <div>
+                  <span>Oprettet {format(new Date(booking.created_at), 'd. MMM yyyy', { locale: da })}</span>
+                  <span className="mx-1">&middot;</span>
+                  <span>{booking.guest_email}</span>
+                </div>
+                {isOwner && booking.status === 'confirmed' && (
+                  <div className="flex items-center space-x-2">
+                    {isEditing ? (
+                      <>
+                        <button
+                          onClick={() => handleSaveEdit(booking.id)}
+                          className="text-success-fg hover:text-success-fg/80"
+                        >
+                          Gem
+                        </button>
+                        <button
+                          onClick={() => setEditingId(null)}
+                          className="text-fg-muted hover:text-fg-default"
+                        >
+                          Annuller
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => handleEdit(booking)}
+                          className="text-accent-fg hover:text-accent-fg/80"
+                          title="Rediger"
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteClick(booking.id)}
+                          className="text-danger-fg hover:text-danger-fg/80"
+                          title="Slet booking"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+      
+      <ConfirmModal
+        isOpen={deleteConfirm.isOpen}
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+        title="Slet booking"
+        message="Er du sikker på at du vil slette denne booking? Denne handling kan ikke fortrydes."
+      />
+    </div>
+  );
+}

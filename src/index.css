@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@theme {
+  /* GitHub-like neutral palette */
+  --color-canvas-default: #ffffff;
+  --color-canvas-subtle: #f6f8fa;
+  --color-border-default: #d0d7de;
+  --color-border-muted: #d8dee4;
+  --color-fg-default: #24292f;
+  --color-fg-muted: #57606a;
+  --color-fg-subtle: #6e7781;
+  --color-accent-fg: #0969da;
+  --color-accent-emphasis: #0969da;
+  --color-success-fg: #1a7f37;
+  --color-attention-fg: #9a6700;
+  --color-danger-fg: #cf222e;
+  
+  --color-btn-text: #24292f;
+  --color-btn-bg: #f6f8fa;
+  --color-btn-border: rgba(27, 31, 36, 0.15);
+  --color-btn-hover-bg: #f3f4f6;
+  --color-btn-hover-border: rgba(27, 31, 36, 0.15);
+  --color-btn-active-bg: #ebecf0;
+  --color-btn-primary-text: #ffffff;
+  --color-btn-primary-bg: #2da44e;
+  --color-btn-primary-border: rgba(27, 31, 36, 0.15);
+  --color-btn-primary-hover-bg: #2c974b;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+@layer base {
+  body {
+    @apply bg-canvas-default text-fg-default font-sans antialiased;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-sans font-semibold text-fg-default;
+  }
+  a {
+    @apply text-accent-fg hover:underline decoration-accent-fg;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-1.5 text-sm font-medium leading-5 text-btn-text bg-btn-bg border border-btn-border rounded-md shadow-sm hover:bg-btn-hover-bg transition-colors cursor-pointer;
+  }
+  .btn-primary {
+    @apply text-btn-primary-text bg-btn-primary-bg border-btn-primary-border hover:bg-btn-primary-hover-bg;
+  }
+  .card {
+    @apply bg-canvas-default border border-border-default rounded-md;
+  }
+  .card-header {
+    @apply bg-canvas-subtle border-b border-border-default px-4 py-3 rounded-t-md font-semibold text-sm;
+  }
+}
