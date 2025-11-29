@@ -2,7 +2,7 @@ import React from 'react';
 import { X, Users, User, CheckCircle2, XCircle, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { da } from 'date-fns/locale';
-import { openGoogleCalendar } from '../lib/calendar';
+import { openGoogleCalendar, openICalendar } from '../lib/calendar';
 
 export function BookingInfoModal({ isOpen, onClose, booking }) {
   if (!isOpen || !booking) return null;
@@ -94,6 +94,13 @@ export function BookingInfoModal({ isOpen, onClose, booking }) {
               className="inline-flex w-full justify-center rounded-md bg-btn-primary-bg px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-btn-primary-hover-bg sm:w-auto"
             >
               Luk
+            </button>
+            <button
+              type="button"
+              onClick={() => openICalendar(booking)}
+              className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+            >
+              Tilføj til iCal
             </button>
             <button
               type="button"

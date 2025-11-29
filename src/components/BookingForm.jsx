@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { format, startOfDay } from 'date-fns';
 import { supabase } from '../lib/supabase';
-import { openGoogleCalendar } from '../lib/calendar';
+import { openGoogleCalendar, openICalendar } from '../lib/calendar';
 
 export function BookingForm({ selectedRange, onSuccess, userEmail }) {
   const [name, setName] = useState('');
@@ -73,6 +73,11 @@ export function BookingForm({ selectedRange, onSuccess, userEmail }) {
     openGoogleCalendar(lastBooking);
   };
 
+  const handleICalendar = () => {
+    if (!lastBooking) return;
+    openICalendar(lastBooking);
+  };
+
   const handleCloseSuccess = () => {
     setLastBooking(null);
     onSuccess(); // Refresh parent
@@ -103,6 +108,17 @@ export function BookingForm({ selectedRange, onSuccess, userEmail }) {
                <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7 5h5v5h-5v-5z"/>
             </svg>
             Tilføj til Google Kalender
+          </button>
+
+          <button
+            type="button"
+            onClick={handleICalendar}
+            className="w-full flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-fg"
+          >
+            <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+               <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7 5h5v5h-5v-5z"/>
+            </svg>
+            Tilføj til iCal
           </button>
 
           <button
