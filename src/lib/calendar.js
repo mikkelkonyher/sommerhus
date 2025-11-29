@@ -25,7 +25,7 @@ export function openGoogleCalendar(booking) {
   window.open(url, '_blank');
 }
 
-export async function openICalendar(booking) {
+export function openICalendar(booking) {
   if (!booking) return;
 
   const { start_date, end_date, guest_name, start, end, name } = booking;
@@ -67,43 +67,28 @@ export async function openICalendar(booking) {
   ].join('\r\n');
 
   const filename = `sommerhus-${guestName}-${startStr}.ics`;
-  const file = new File([icalContent], filename, { type: 'text/calendar;charset=utf-8' });
-
-  // Try using the Web Share API first (great for mobile)
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    try {
-      await navigator.share({
-        files: [file],
-        title: 'Sommerhus Booking',
-        text: 'Booking af sommerhus'
-      });
-      return;
-    } catch (err) {
-      if (err.name !== 'AbortError') {
-        console.error('Error sharing:', err);
-      }
-      // If share fails (or user cancels), fall back to download
-      // But if user cancelled, we might not want to download. 
-      // However, usually AbortError means user cancelled.
-      if (err.name === 'AbortError') return;
-    }
-  }
-
-  // Fallback: Create a blob and trigger download
-  // The browser/OS will recognize the .ics file and open it with the default calendar app
   const blob = new Blob([icalContent], { type: 'text/calendar;charset=utf-8' });
   const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  
-  // Trigger the download
-  document.body.appendChild(link);
-  link.click();
-  
-  // Clean up
-  setTimeout(() => {
+
+  // Detect iOS
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+  if (isIOS) {
+    // On iOS, opening the blob URL directly often works better than downloading
+    // It should prompt "Subscribe" or "Add to Calendar"
+    window.open(url, '_blank');
+  } else {
+    // For Desktop/Android, use the download attribute
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
     document.body.removeChild(link);
+  }
+  
+  // Clean up after a delay to ensure download/open starts
+  setTimeout(() => {
     URL.revokeObjectURL(url);
-  }, 100);
+  }, 1000);
 }
