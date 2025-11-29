@@ -25,7 +25,7 @@ export function openGoogleCalendar(booking) {
   window.open(url, '_blank');
 }
 
-export function openICalendar(booking) {
+export async function openICalendar(booking) {
   if (!booking) return;
 
   const { start_date, end_date, guest_name, start, end, name } = booking;
@@ -66,13 +66,36 @@ export function openICalendar(booking) {
     'END:VCALENDAR'
   ].join('\r\n');
 
-  // Create a blob and trigger download with .ics extension
+  const filename = `sommerhus-${guestName}-${startStr}.ics`;
+  const file = new File([icalContent], filename, { type: 'text/calendar;charset=utf-8' });
+
+  // Try using the Web Share API first (great for mobile)
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({
+        files: [file],
+        title: 'Sommerhus Booking',
+        text: 'Booking af sommerhus'
+      });
+      return;
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        console.error('Error sharing:', err);
+      }
+      // If share fails (or user cancels), fall back to download
+      // But if user cancelled, we might not want to download. 
+      // However, usually AbortError means user cancelled.
+      if (err.name === 'AbortError') return;
+    }
+  }
+
+  // Fallback: Create a blob and trigger download
   // The browser/OS will recognize the .ics file and open it with the default calendar app
   const blob = new Blob([icalContent], { type: 'text/calendar;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = `sommerhus-${guestName}-${startStr}.ics`;
+  link.download = filename;
   
   // Trigger the download
   document.body.appendChild(link);
