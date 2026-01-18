@@ -114,7 +114,7 @@ export function Login() {
         <div className="text-center">
           <Link
             to="/reset-password"
-            className="text-sm text-fg-muted hover:text-fg-default"
+            className="text-sm font-medium text-accent-fg hover:text-accent-fg/80 transition-colors"
           >
             Glemt adgangskode?
           </Link>
