@@ -3,6 +3,7 @@ import { supabase } from './lib/supabase';
 import { BookingCalendar } from './components/BookingCalendar';
 import { BookingForm } from './components/BookingForm';
 import { BookingList } from './components/BookingList';
+import { WeatherForecast } from './components/WeatherForecast';
 import { Login } from './pages/Login';
 import { HouseInfo } from './pages/HouseInfo';
 import { ResetPassword } from './pages/ResetPassword';
@@ -63,6 +64,9 @@ function Dashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-8">
               {/* Left Column: Calendar + Booking List (8 cols on desktop) */}
               <div className="lg:col-span-8 space-y-4 sm:space-y-6">
+                {/* Weather Forecast */}
+                <WeatherForecast />
+
                 {/* Calendar */}
                 <div className="bg-canvas-default border border-border-default rounded-lg shadow-sm overflow-hidden">
                   <div className="border-b border-border-muted px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
